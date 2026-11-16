@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ramadan Journal</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,700&family=Instrument+Serif:ital@0;1&display=swap">
+<style>
+/* Layout: one calm column under a sticky masthead with section tabs. Each view is a stack of ruled sections.
+   The single bold moment is the day ring, 30 ticks for 30 days, filling in gold as the month goes on. */
+:root{
+  color-scheme:light;
+  --bg:#ECEFE8; --surface:#F6F8F3; --ink:#18271F; --ink-soft:#56665C; --line:#CDD5C8; --tick:#BAC4B5;
+  --accent:#2E4A3A; --on-accent:#F3F6EF; --sage:#7F9E87; --gold:#B8902F; --gold-ink:#7C5C0E;
+  --display:"Instrument Serif",Georgia,"Times New Roman",serif;
+  --body:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --arabic:"Amiri","Noto Naskh Arabic","Geeza Pro","Traditional Arabic",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#111913; --surface:#18221B; --ink:#E6ECE2; --ink-soft:#A0B1A5; --line:#2C3C32; --tick:#3F5547;
+    --accent:#A8CBB0; --on-accent:#0F1B14; --sage:#7FA088; --gold:#D4B05A; --gold-ink:#D9B965;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#111913; --surface:#18221B; --ink:#E6ECE2; --ink-soft:#A0B1A5; --line:#2C3C32; --tick:#3F5547;
+  --accent:#A8CBB0; --on-accent:#0F1B14; --sage:#7FA088; --gold:#D4B05A; --gold-ink:#D9B965;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.55 var(--body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.col{max-width:760px;margin:0 auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* masthead */
+.mast{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0 2px}
+.logo{display:flex;align-items:center;gap:8px;margin:0;font:400 26px/1 var(--display)}
+.logo svg{width:22px;height:22px;color:var(--gold)}
+.ar-s{font:400 24px/1.4 var(--arabic);color:var(--gold-ink)}
+.nav{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;margin:0 -6px}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:none;padding:10px 12px;color:var(--ink-soft);text-decoration:none;font-weight:500;font-size:15px;border-bottom:2px solid transparent;white-space:nowrap}
+.nav a:hover{color:var(--ink)}
+.nav a[aria-current]{color:var(--ink);border-bottom-color:var(--gold)}
+
+/* type */
+h1{font:400 clamp(32px,6vw,42px)/1.05 var(--display);margin:0;text-wrap:balance}
+h2{font:400 24px/1.15 var(--display);margin:0;text-wrap:balance}
+h3{font:700 12px/1.3 var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--gold-ink);margin:0 0 8px}
+.lede{color:var(--ink-soft);margin:8px 0 0;max-width:62ch}
+.kicker{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--gold-ink);font-weight:700;margin:0 0 8px}
+.meta{font-size:13px;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.vh{padding:24px 0 18px}
+
+/* sections */
+.blk{padding:22px 0;border-top:1px solid var(--line)}
+.bh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}
+.stack{display:grid;gap:8px;margin-bottom:10px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.gl{margin-bottom:14px}
+.foot{border-top:1px solid var(--line);margin-top:24px;padding-top:16px;font-size:13px;color:var(--ink-soft)}
+
+/* controls */
+.btn{font:500 14px var(--body);padding:9px 14px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer}
+.btn:hover{border-color:var(--sage)}
+.btn.pri{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,summary:focus-visible,.cell:focus-visible,.cb:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+label.f{display:flex;flex-direction:column;gap:5px;font-size:12px;letter-spacing:.04em;color:var(--ink-soft)}
+input[type=text],input[type=number],input[type=time],input[type=date],textarea{width:100%;font:400 16px var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-width:0}
+input::placeholder,textarea::placeholder{color:var(--ink-soft);opacity:.7}
+textarea{resize:vertical;min-height:84px;line-height:1.5}
+.row{display:flex;gap:10px;align-items:center;margin-top:10px}
+.row input{flex:1}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;display:inline-flex}
+.chip input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.chip span{padding:9px 14px;border:1px solid var(--line);border-radius:999px;font-size:15px;background:var(--surface);transition:background .15s}
+.chip input:checked+span{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.chip input:checked+span::before{content:"\2713\00a0"}
+.chip input:focus-visible+span{outline:2px solid var(--gold);outline-offset:2px}
+
+.dot{position:relative;display:inline-block;width:22px;height:22px;flex:none}
+.dot input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}
+.dot span{display:block;width:100%;height:100%;border:1.5px solid var(--sage);border-radius:50%}
+.dot input:checked+span{background:var(--gold);border-color:var(--gold)}
+.dot input:focus-visible+span{outline:2px solid var(--gold);outline-offset:2px}
+.task{display:flex;gap:10px;align-items:center;margin-top:8px}
+.task input[type=text]{flex:1}
+
+/* today */
+.hero{display:flex;flex-wrap:wrap;gap:20px 28px;align-items:center;padding:20px;margin:18px 0 22px;background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.ringw{position:relative;width:148px;height:148px;flex:none}
+.ringw svg{display:block;width:100%;height:100%}
+.tk{stroke:var(--tick);stroke-width:2.4;stroke-linecap:round}
+.tk.mid{stroke:var(--sage)}
+.tk.hi{stroke:var(--gold)}
+.tk.cur{stroke:var(--accent);stroke-width:3.8}
+.rc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1}
+.rc b{font:400 52px/1 var(--display);font-variant-numeric:tabular-nums}
+.rc span{font-size:12px;letter-spacing:.06em;color:var(--ink-soft);margin-top:4px}
+.hinfo{flex:1 1 240px;min-width:0}
+.daynav{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0}
+.times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.dq{font:italic 400 26px/1.3 var(--display);margin:0;max-width:34ch;text-wrap:balance}
+
+.counter{display:grid;grid-template-columns:1fr auto;gap:8px 12px;align-items:center;padding:12px 0;border-top:1px dashed var(--line)}
+.counter:first-of-type{border-top:0;padding-top:0}
+.cname{font-weight:500}
+.ctl{display:flex;align-items:center;gap:8px}
+.cn{min-width:3ch;text-align:right;font:400 30px/1 var(--display);font-variant-numeric:tabular-nums}
+.cb{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:400 20px/1 var(--body);cursor:pointer}
+.cb.plus{width:48px;height:48px;background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.bar,.pb{height:5px;border-radius:3px;background:var(--line);overflow:hidden}
+.bar{grid-column:1/-1}
+.pb{height:8px;border-radius:4px}
+.bar i,.pb i{display:block;height:100%;background:var(--gold)}
+
+/* month */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px}
+.stat b{display:block;font:400 36px/1 var(--display);font-variant-numeric:tabular-nums}
+.stat span{font-size:13px;color:var(--ink-soft)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.cell{display:flex;flex-direction:column;gap:2px;min-width:0;text-align:left;padding:10px 10px 8px;border:1px solid var(--line);border-radius:12px;font:inherit;color:var(--ink);cursor:pointer;
+  background:var(--surface);background:color-mix(in srgb,var(--gold) calc(var(--s,0)*45%),var(--surface))}
+.cell b{font:400 28px/1 var(--display)}
+.cell small{font-size:11px;color:var(--ink-soft)}
+.cell.cur{outline:2px solid var(--accent);outline-offset:1px}
+.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+.trk{border-collapse:collapse;min-width:100%;font-size:12px}
+.trk th,.trk td{padding:6px 5px;text-align:center;border-bottom:1px solid var(--line)}
+.trk thead th{font-weight:500;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.trk th.rl{position:sticky;left:0;z-index:1;background:var(--bg);text-align:left;padding:6px 10px;white-space:nowrap;font-weight:500;color:var(--ink);border-right:1px solid var(--line)}
+.trk tr:last-child th,.trk tr:last-child td{border-bottom:0}
+.trk .dot{width:16px;height:16px;vertical-align:middle}
+
+/* quran, duas, nights */
+.juz{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.juz .chip{display:flex}
+.juz .chip span{display:block;width:100%;text-align:center;border-radius:12px;padding:10px 6px}
+.ar{font:400 28px/1.9 var(--arabic);margin:4px 0}
+.tr{font-style:italic;color:var(--ink-soft);margin:2px 0}
+.mn{margin:6px 0 0}
+.duapair{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:28px}
+details summary{cursor:pointer;font-weight:500;color:var(--accent)}
+.dl{list-style:none;margin:12px 0;padding:0}
+.dl li{padding:10px 0;border-top:1px dashed var(--line)}
+.night{padding:14px 0;border-top:1px dashed var(--line)}
+.night:first-of-type{border-top:0;padding-top:0}
+.nh{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin-bottom:10px}
+.nh b{font:400 24px/1.1 var(--display)}
+.odd .nh b{color:var(--gold-ink)}
+.tag{font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700;color:var(--gold-ink)}
+
+/* lists */
+.crow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.crow input{flex:1 1 130px;width:auto}
+.crow input[type=date]{flex:0 1 160px}
+.crow .dot{flex:none}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="col">
+  <header class="mast">
+    <div class="brand">
+      <p class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15.5 3.2a9 9 0 1 0 5.3 13.6A7.5 7.5 0 0 1 15.5 3.2z" fill="currentColor"/></svg>Ramadan Journal</p>
+      <span class="ar-s" lang="ar" dir="rtl">رمضان كريم</span>
+    </div>
+    <nav class="nav" id="nav" aria-label="Sections"></nav>
+  </header>
+  <main id="app"></main>
+</div>
+
+<script>
+(function(){
+"use strict";
+const KEY="ramadan-journal-v1";
+const MAXS=12, MUSHAF=604;
+const VIEWS=[["today","Today"],["month","Month"],["quran","Quran"],["goals","Goals"],["duas","Duas"],["nights","Last 10 nights"],["lists","Lists"],["eid","Eid"],["backup","Backup"]];
+const PRAYERS=[["fajr","Fajr"],["dhuhr","Dhuhr"],["asr","Asr"],["maghrib","Maghrib"],["isha","Isha"]];
+const HABITS=[["taraweeh","Taraweeh","Taraweeh"],["tahajjud","Tahajjud or Qiyam","Tahajjud"],["sunnah","Sunnah prayers","Sunnah"],["adhkar","Morning and evening adhkar","Adhkar"],["charity","Charity given","Charity"],["kind","Act of kindness","Kindness"]];
+const DHIKR=[["sub","SubhanAllah",33],["hamd","Alhamdulillah",33],["akbar","Allahu Akbar",33],["istigh","Astaghfirullah",100],["salawat","Salawat on the Prophet",100]];
+const DUAS=[
+["Quran 14:40","My Lord, make me one who keeps up prayer, and my children too. Our Lord, accept my prayer."],
+["Quran 2:286","Our Lord, do not burden us with more than we can bear. Pardon us, forgive us, and have mercy on us."],
+["Quran 3:8","Our Lord, do not let our hearts turn away after You have guided us, and grant us mercy from You."],
+["Quran 3:16","Our Lord, we believe. Forgive our sins and protect us from the punishment of the Fire."],
+["Quran 3:191","Our Lord, You created all this with purpose. Glory be to You. Protect us from the punishment of the Fire."],
+["Quran 3:193","Our Lord, we heard a caller invite us to faith, and we believed. Forgive our sins, erase our wrongs, and let us die among the righteous."],
+["Quran 7:23","Our Lord, we have wronged ourselves. If You do not forgive us and have mercy on us, we will be among the lost."],
+["Quran 7:126","Our Lord, pour patience over us and let us die in submission to You."],
+["Quran 14:38","Our Lord, You know what we hide and what we show. Nothing on earth or in heaven is hidden from Allah."],
+["Quran 2:201","Our Lord, give us good in this world and good in the next, and protect us from the punishment of the Fire."],
+["Quran 14:41","Our Lord, forgive me, my parents, and the believers on the Day the reckoning is established."],
+["Quran 18:10","Our Lord, grant us mercy from You and make our affairs turn out rightly."],
+["Quran 40:7","Our Lord, Your mercy and knowledge encompass everything. Forgive those who turn to You and follow Your path."],
+["Quran 66:8","Our Lord, perfect our light for us and forgive us. You have power over all things."],
+["Quran 60:5","Our Lord, do not make us a trial for those who disbelieve, and forgive us. You are the Almighty, the Wise."],
+["Quran 12:101","You are my protector in this world and the next. Let me die in submission to You and join me with the righteous."],
+["Quran 20:25-28","My Lord, open up my chest, make my task easy for me, and loosen the knot in my tongue so that they understand my words."],
+["Quran 28:24","My Lord, I am in need of whatever good You send down to me."],
+["Quran 27:19","My Lord, inspire me to be grateful for the blessings You gave me and my parents, and to do good work that pleases You."],
+["Quran 20:114","My Lord, increase me in knowledge."],
+["Quran 3:38","My Lord, grant me good offspring from You. You are the One who hears every prayer."],
+["Quran 25:74","Our Lord, give us joy in our spouses and children, and make us an example for those who are mindful of You."],
+["Quran 23:118","My Lord, forgive and have mercy. You are the best of those who show mercy."],
+["Quran 17:80","My Lord, let me enter and leave in truth, and grant me support from You."],
+["Quran 21:87","There is no god but You. Glory be to You. I have been among the wrongdoers."],
+["Quran 21:83","My Lord, hardship has touched me, and You are the most merciful of the merciful."],
+["Quran 2:127","Our Lord, accept this from us. You are the All-Hearing, the All-Knowing."],
+["Quran 59:10","Our Lord, forgive us and our brothers and sisters who came before us in faith, and keep resentment out of our hearts."],
+["Quran 2:250","Our Lord, pour patience upon us, make our steps firm, and help us."],
+["Quran 46:15","My Lord, inspire me to be thankful for Your favours, to do good that pleases You, and to make my children righteous. I turn to You."]
+];
+
+/* helpers */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const num=v=>{const n=parseFloat(v);return isFinite(n)?n:0};
+const fmtN=n=>n.toLocaleString(undefined,{maximumFractionDigits:2});
+const iso=dt=>dt.getFullYear()+"-"+String(dt.getMonth()+1).padStart(2,"0")+"-"+String(dt.getDate()).padStart(2,"0");
+
+/* state, saved in this browser only */
+function fresh(){return {start:"2027-02-08",name:"",days:{},juz:{},goals:{},watch:{},duas:{},nights:{},eid:{check:{},gifts:[],plan:""},groc:[],chlog:[],zakat:{},qnotes:""}}
+function load(){let raw=null;try{raw=localStorage.getItem(KEY)}catch(e){}let d=null;try{d=raw?JSON.parse(raw):null}catch(e){}return d&&typeof d==="object"&&!Array.isArray(d)?d:{}}
+function merge(d){
+  const f=fresh();for(const k in d){f[k]=d[k]}
+  ["days","juz","goals","watch","duas","nights","zakat"].forEach(k=>{if(!f[k]||typeof f[k]!=="object"||Array.isArray(f[k]))f[k]={}});
+  if(!f.eid||typeof f.eid!=="object")f.eid={};
+  if(!f.eid.check)f.eid.check={};
+  if(!Array.isArray(f.eid.gifts))f.eid.gifts=[];
+  if(!Array.isArray(f.groc))f.groc=[];
+  if(!Array.isArray(f.chlog))f.chlog=[];
+  return f;
+}
+let S=merge(load());
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+function get(path){return path.split(".").reduce((o,k)=>o==null?undefined:o[k],S)}
+function set(path,val){
+  const ks=path.split(".");let o=S;
+  for(let i=0;i<ks.length-1;i++){const k=ks[i];if(o[k]==null||typeof o[k]!=="object")o[k]={};o=o[k]}
+  o[ks[ks.length-1]]=val;save();
+}
+
+/* dates */
+const parseISO=s=>{const m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||"");return m?new Date(+m[1],+m[2]-1,+m[3]):new Date(2027,1,8)};
+const addDays=(d,n)=>new Date(d.getFullYear(),d.getMonth(),d.getDate()+n);
+const dateOf=d=>addDays(parseISO(S.start),d-1);
+const fd=(dt,o)=>dt.toLocaleDateString(undefined,o);
+function todayIdx(){const t=new Date();const t0=new Date(t.getFullYear(),t.getMonth(),t.getDate());return Math.round((t0-parseISO(S.start))/86400000)+1}
+
+const ui={view:"today",day:1,ready:false,wipe:false};
+(function(){const i=todayIdx();ui.day=(i>=1&&i<=30)?i:1})();
+
+/* progress */
+function score(d){
+  const x=S.days[d];if(!x)return 0;let n=0;
+  PRAYERS.forEach(p=>{if(x.p&&x.p[p[0]])n++});
+  HABITS.forEach(h=>{if(x.x&&x.x[h[0]])n++});
+  if(num(x.pages)>0)n++;
+  return n;
+}
+function stats(){
+  let all5=0,pages=0,tar=0,cha=0;
+  for(let d=1;d<=30;d++){
+    const x=S.days[d];if(!x)continue;
+    if(PRAYERS.every(p=>x.p&&x.p[p[0]]))all5++;
+    pages+=num(x.pages);
+    if(x.x&&x.x.taraweeh)tar++;
+    if(x.x&&x.x.charity)cha++;
+  }
+  return {all5,pages,tar,cha};
+}
+
+/* markup helpers */
+const chk=(path,label)=>`<label class="chip"><input type="checkbox" data-k="${path}"${get(path)?" checked":""}><span>${esc(label)}</span></label>`;
+const dot=(path,label)=>`<label class="dot"><input type="checkbox" data-k="${path}"${get(path)?" checked":""} aria-label="${esc(label)}"><span></span></label>`;
+const txt=(path,label,ph)=>`<input type="text" data-k="${path}" value="${esc(get(path))}" placeholder="${esc(ph||"")}" aria-label="${esc(label)}">`;
+const area=(path,label,ph,rows)=>`<textarea data-k="${path}" rows="${rows||3}" placeholder="${esc(ph||"")}" aria-label="${esc(label)}">${esc(get(path))}</textarea>`;
+const numin=(path,label,ph)=>`<input type="number" inputmode="decimal" min="0" step="any" data-k="${path}" value="${esc(get(path))}" placeholder="${esc(ph||"")}" aria-label="${esc(label)}">`;
+const tm=(path,label)=>`<label class="f">${esc(label)}<input type="time" data-k="${path}" value="${esc(get(path))}"></label>`;
+const sec=(title,meta,body,id)=>`<section class="blk"><div class="bh"><h2>${esc(title)}</h2>${meta!=null?`<span class="meta"${id?` id="${id}"`:""}>${esc(meta)}</span>`:""}</div>${body}</section>`;
+const head=(title,lede)=>`<div class="vh"><h1>${esc(title)}</h1>${lede?`<p class="lede">${esc(lede)}</p>`:""}</div>`;
+const FOOT=`<p class="foot">Your entries are saved on this device, in this browser. Use the Backup tab to keep a copy.</p>`;
+
+/* today */
+function ringHTML(){
+  let t="";
+  for(let i=1;i<=30;i++){
+    const a=(i-1)/30*2*Math.PI-Math.PI/2;
+    const r1=44,r2=i===ui.day?58:54,c=Math.cos(a),s=Math.sin(a);
+    const sc=score(i);
+    const cls=i===ui.day?"cur":(sc>=9?"hi":(sc>0?"mid":""));
+    t+=`<line class="tk ${cls}" x1="${(60+r1*c).toFixed(1)}" y1="${(60+r1*s).toFixed(1)}" x2="${(60+r2*c).toFixed(1)}" y2="${(60+r2*s).toFixed(1)}"/>`;
+  }
+  return `<svg viewBox="0 0 120 120" role="img" aria-label="Day ${ui.day} of 30">${t}</svg><div class="rc"><b>${ui.day}</b><span>of 30</span></div>`;
+}
+function viewToday(){
+  const d=ui.day,P="days."+d,dt=dateOf(d),ti=todayIdx(),st=stats();
+  let status="";
+  if(ti<1)status="Ramadan begins in "+(1-ti)+(1-ti===1?" day":" days");
+  else if(ti>30)status="Ramadan has ended";
+  else if(ti===d)status="Today";
+  const du=DUAS[d-1];
+  const pc=PRAYERS.filter(p=>get(P+".p."+p[0])).length;
+  const hero=`<section class="hero"><div class="ringw" id="ringw">${ringHTML()}</div><div class="hinfo">
+    <p class="kicker">${d} Ramadan${status?" · "+esc(status):""}</p>
+    <h1>${esc(fd(dt,{weekday:"long",month:"long",day:"numeric"}))}</h1>
+    <div class="daynav"><button class="btn" data-act="prev"${d<=1?" disabled":""}>Previous day</button><button class="btn" data-act="next"${d>=30?" disabled":""}>Next day</button>${ti>=1&&ti<=30&&ti!==d?`<button class="btn pri" data-act="today">Jump to today</button>`:""}</div>
+    <div class="times">${tm(P+".sTime","Suhoor ends (Fajr)")}${tm(P+".iTime","Iftar (Maghrib)")}</div></div></section>`;
+  const dua=`<section class="blk"><p class="kicker">Dua of the day · ${esc(du[0])}</p><p class="dq">${esc(du[1])}</p></section>`;
+  const prayers=sec("Prayers",pc+" of 5",`<div class="chips">${PRAYERS.map(p=>chk(P+".p."+p[0],p[1])).join("")}</div>`,"m-pr");
+  const worship=sec("Worship and giving",null,`<div class="chips">${HABITS.map(h=>chk(P+".x."+h[0],h[1])).join("")}</div><div class="row">${txt(P+".kindText","Act of kindness today","What was your act of kindness?")}</div>`);
+  const quran=sec("Quran today",fmtN(st.pages)+" of "+MUSHAF+" pages this month",`<label class="f" style="max-width:200px">Pages read today${numin(P+".pages","Pages read today","0")}</label><p class="lede">About 20 pages a day completes the ${MUSHAF}-page Madinah Mushaf in 30 days.</p>`,"m-qp");
+  const dh=sec("Dhikr",null,DHIKR.map(r=>{
+    const c=num(get(P+".dh."+r[0]));
+    return `<div class="counter" data-t="${r[2]}"><div><span class="cname">${esc(r[1])}</span> <span class="meta">target ${r[2]}</span></div>
+      <div class="ctl"><button class="cb" data-act="dh" data-key="${r[0]}" data-d="-1" aria-label="Subtract one from ${esc(r[1])}">&minus;</button><span class="cn">${c}</span><button class="cb plus" data-act="dh" data-key="${r[0]}" data-d="1" aria-label="Add one to ${esc(r[1])}">+</button></div>
+      <div class="bar"><i style="width:${Math.min(100,c/r[2]*100)}%"></i></div></div>`;
+  }).join(""));
+  const tasks=sec("Top three for today",null,[0,1,2].map(i=>`<div class="task">${dot(P+".top."+i+".d","Done: task "+(i+1))}${txt(P+".top."+i+".t","Task "+(i+1),i===0?"Assignment, project or errand":"")}</div>`).join(""));
+  const meals=sec("Meals",null,`<div class="two"><label class="f">Suhoor${txt(P+".suhoor","Suhoor meal","What are you eating before Fajr?")}</label><label class="f">Iftar${txt(P+".iftar","Iftar meal","Dates, water, then...")}</label></div>`);
+  const refl=sec("Gratitude and reflection",null,`<div class="stack">${[0,1,2].map(i=>txt(P+".gr."+i,"Grateful for "+(i+1),i===0?"Three things I am grateful for today":"")).join("")}</div>${area(P+".reflect","Reflection","How did today go? What do I want to do better tomorrow?",4)}`);
+  return hero+dua+prayers+worship+quran+dh+tasks+meals+refl+FOOT;
+}
+
+/* month */
+function cellHTML(d){
+  const s=score(d);
+  return `<button class="cell${d===ui.day?" cur":""}" data-act="pick" data-day="${d}" style="--s:${(s/MAXS).toFixed(2)}" aria-label="Day ${d}, ${s} of ${MAXS} done"><b>${d}</b><small>${esc(fd(dateOf(d),{month:"short",day:"numeric"}))}</small><small class="sc">${s}/${MAXS}</small></button>`;
+}
+function statsHTML(st){
+  return `<div class="stat"><b>${st.all5}</b><span>days with all 5 prayers</span></div><div class="stat"><b>${st.tar}</b><span>Taraweeh nights</span></div><div class="stat"><b>${fmtN(st.pages)}</b><span>Quran pages read</span></div><div class="stat"><b>${st.cha}</b><span>days with charity</span></div>`;
+}
+function trackerHTML(){
+  const rows=PRAYERS.map(p=>["p."+p[0],p[1]]).concat(HABITS.map(h=>["x."+h[0],h[2]]));
+  let hd=`<tr><th class="rl"><span class="sr">Habit</span></th>`;
+  for(let d=1;d<=30;d++)hd+=`<th>${d}</th>`;
+  hd+="</tr>";
+  const body=rows.map(r=>{
+    let t=`<tr><th class="rl">${esc(r[1])}</th>`;
+    for(let d=1;d<=30;d++)t+=`<td>${dot("days."+d+"."+r[0],r[1]+", day "+d)}</td>`;
+    return t+"</tr>";
+  }).join("");
+  return `<div class="scroll"><table class="trk"><thead>${hd}</thead><tbody>${body}</tbody></table></div>`;
+}
+function viewMonth(){
+  let cells="";for(let d=1;d<=30;d++)cells+=cellHTML(d);
+  return head("Month","Open any day, or tick habits straight into the tracker at the bottom.")
+    +sec("Dates",null,`<label class="f" style="max-width:260px">Ramadan begins<input type="date" data-k="start" data-re="1" value="${esc(S.start)}"></label><p class="lede">The start date depends on the moon sighting where you live. Change it and every date in the journal moves with it.</p>`)
+    +sec("This month",null,`<div class="stats" id="m-stats">${statsHTML(stats())}</div>`)
+    +sec("30 days",null,`<div class="grid">${cells}</div>`)
+    +sec("Habit tracker",null,trackerHTML())+FOOT;
+}
+function updateMonth(){
+  const e=$("#m-stats");if(e)e.innerHTML=statsHTML(stats());
+  document.querySelectorAll(".cell").forEach(c=>{
+    const d=+c.dataset.day,s=score(d);
+    c.style.setProperty("--s",(s/MAXS).toFixed(2));
+    const sc=c.querySelector(".sc");if(sc)sc.textContent=s+"/"+MAXS;
+  });
+}
+
+/* quran */
+function viewQuran(){
+  const done=Object.keys(S.juz).filter(k=>S.juz[k]).length,st=stats(),ti=todayIdx();
+  let tiles="";for(let j=1;j<=30;j++)tiles+=chk("juz."+j,"Juz "+j);
+  const pace=(ti>=1&&ti<=30)?"A juz a day puts you on juz "+ti+" today.":"A juz a day finishes the whole Quran by day 30.";
+  return head("Quran","Tick each juz when you finish it. "+pace)
+    +sec("30 juz",done+" of 30",`<div class="juz">${tiles}</div>`,"m-juz")
+    +sec("Pages",fmtN(st.pages)+" of "+MUSHAF,`<div class="pb"><i id="m-pb" style="width:${Math.min(100,st.pages/MUSHAF*100)}%"></i></div><p class="lede">Pages add up from the daily entries on the Today tab.</p>`,"m-pg")
+    +sec("Reading notes",null,area("qnotes","Reading notes","Verses that stayed with you, questions to look up, surahs to revisit",5))+FOOT;
+}
+
+/* goals */
+function viewGoals(){
+  const defs=[["quran","Quran","How much will you read, recite or memorise?"],["prayer","Prayer","On time, in congregation, extra nights"],["charity","Charity and giving","Who will you give to, and how much?"],["leave","Habits to leave","What are you letting go of this month?"],["build","Habits to build","Small, repeatable and specific"],["health","Health","Sleep, water, movement, a balanced iftar"],["study","Study and work","Exams, deadlines, projects, and how you will protect your focus"]];
+  const watch=["Skipping suhoor","Overeating at iftar","Scrolling instead of worshipping","Gossip and backbiting","Wasting food","Staying up late and missing Fajr"];
+  return head("Goals","Write them down once, then come back to them on the 10th and the 20th.")
+    +sec("This journal belongs to",null,txt("name","Your name","Your name"))
+    +sec("Top three priorities",null,`<div class="stack">${[1,2,3].map(i=>txt("goals.p"+i,"Priority "+i,i===1?"What matters most this Ramadan?":"")).join("")}</div>`)
+    +sec("Goals by area",null,defs.map(g=>`<label class="f gl">${esc(g[1])}${area("goals."+g[0],g[1],g[2],3)}</label>`).join(""))
+    +sec("Watch out for",null,`<div class="chips">${watch.map((w,i)=>chk("watch.w"+i,w)).join("")}</div><p class="lede">Tick the ones you want to keep an eye on.</p>`)+FOOT;
+}
+
+/* duas */
+const SUH=`<h3>Suhoor intention</h3><p class="ar" lang="ar" dir="rtl">وَبِصَوْمِ غَدٍ نَّوَيْتُ مِنْ شَهْرِ رَمَضَانَ</p><p class="tr">Wa bisawmi ghadin nawaytu min shahri Ramadan</p><p class="mn">I intend to fast tomorrow in the month of Ramadan. The intention lives in the heart, so saying it aloud is optional.</p>`;
+const IFT=`<h3>Breaking the fast</h3><p class="ar" lang="ar" dir="rtl">ذَهَبَ الظَّمَأُ وَابْتَلَّتِ الْعُرُوقُ وَثَبَتَ الْأَجْرُ إِنْ شَاءَ اللَّهُ</p><p class="tr">Dhahaba az-zama'u wabtallatil-'urooqu wa thabatal-ajru in sha Allah</p><p class="mn">The thirst is gone, the veins are moist, and the reward is confirmed, if Allah wills.</p>`;
+function viewDuas(){
+  const cats=[["dunya","For this world"],["akhirah","For the next life"],["ummah","For the ummah"],["family","For family and friends"]];
+  const list=DUAS.map((d,i)=>`<li><b>Day ${i+1}</b> <span class="meta">${esc(d[0])}</span><br>${esc(d[1])}</li>`).join("");
+  return head("Duas","Collect what you want to ask for, so you are ready at iftar and in the last third of the night.")
+    +sec("My dua list",null,cats.map(c=>`<label class="f gl">${esc(c[1])}${area("duas."+c[0],c[1],"One dua per line",3)}</label>`).join(""))
+    +sec("Suhoor and iftar",null,`<div class="duapair"><div>${SUH}</div><div>${IFT}</div></div>`)
+    +sec("The 30 duas of the day",null,`<details><summary>Show all 30</summary><ul class="dl">${list}</ul><p class="lede">These are short paraphrases of Quranic duas, not translations. Read the full verses in a translation you trust.</p></details>`)+FOOT;
+}
+
+/* last 10 nights */
+const LQ=`<p class="ar" lang="ar" dir="rtl">اللَّهُمَّ إِنَّكَ عَفُوٌّ تُحِبُّ الْعَفْوَ فَاعْفُ عَنِّي</p><p class="tr">Allahumma innaka 'afuwwun tuhibbul-'afwa fa'fu 'anni</p><p class="mn">O Allah, You are the Pardoner and You love to pardon, so pardon me.</p>`;
+function viewNights(){
+  const flags=[["qiyam","Qiyam"],["quran","Quran"],["dua","Dua"],["charity","Charity"],["itikaf","I'tikaf"]];
+  let n="";
+  for(let k=21;k<=30;k++){
+    const odd=k%2===1;
+    n+=`<div class="night${odd?" odd":""}"><div class="nh"><b>Night ${k}</b><span class="meta">${esc(fd(dateOf(k-1),{weekday:"short",month:"short",day:"numeric"}))} evening</span>${odd?`<span class="tag">Odd night</span>`:""}</div><div class="chips">${flags.map(f=>chk("nights.n"+k+"."+f[0],f[1])).join("")}</div><div class="row">${txt("nights.n"+k+".note","Note for night "+k,"A dua, a verse, how the night felt")}</div></div>`;
+  }
+  return head("Last 10 nights","Laylat al-Qadr is sought in the odd nights of the last ten, and many look to the 27th. A night begins at Maghrib, so Night 21 starts on the evening of Day 20.")
+    +sec("Dua for Laylat al-Qadr",null,LQ)
+    +sec("Night by night",null,n)+FOOT;
+}
+
+/* lists */
+function zakatHTML(){
+  const z=S.zakat,a=num(z.cash)+num(z.gold)+num(z.silver)+num(z.invest)+num(z.other),net=Math.max(0,a-num(z.debts));
+  return `<div class="stat"><b>${fmtN(a)}</b><span>total assets</span></div><div class="stat"><b>${fmtN(net)}</b><span>net after debts</span></div><div class="stat"><b>${fmtN(net*0.025)}</b><span>zakat at 2.5%</span></div>`;
+}
+function chTotal(){return fmtN(S.chlog.reduce((a,r)=>a+num(r&&r.amt),0))+" given"}
+function viewLists(){
+  const g=S.groc.map((r,i)=>`<div class="task">${dot("groc."+i+".d","Bought: "+(r.t||"item"))}${txt("groc."+i+".t","Grocery item")}<button class="btn" data-act="delg" data-i="${i}" aria-label="Remove item">Remove</button></div>`).join("");
+  const c=S.chlog.map((r,i)=>`<div class="crow"><input type="date" data-k="chlog.${i}.date" value="${esc(r.date)}" aria-label="Date">${txt("chlog."+i+".desc","What it was for","What it was for")}${numin("chlog."+i+".amt","Amount","0")}<button class="btn" data-act="delc" data-i="${i}" aria-label="Remove entry">Remove</button></div>`).join("");
+  const zf=[["cash","Cash at home and in the bank"],["gold","Value of gold you own"],["silver","Value of silver you own"],["invest","Investments, stocks and shares"],["other","Business and other assets"],["debts","Debts and bills due now"]];
+  return head("Lists","Groceries for suhoor and iftar, a log of what you give, and a simple zakat estimate.")
+    +sec("Groceries",null,`${g||`<p class="lede" style="margin:0 0 4px">Nothing here yet. Add what you need for suhoor and iftar.</p>`}<div class="row"><input type="text" id="gnew" placeholder="Add an item" aria-label="New grocery item"><button class="btn pri" data-act="addg">Add</button></div>`)
+    +sec("Charity log",chTotal(),`${c||`<p class="lede" style="margin:0">Log each gift so you can see your total by Eid.</p>`}<div class="row"><button class="btn pri" data-act="addc">Add an entry</button></div>`,"m-ch")
+    +sec("Zakat estimate",null,`<div class="two">${zf.map(f=>`<label class="f">${esc(f[1])}${numin("zakat."+f[0],f[1],"0")}</label>`).join("")}</div><div class="stats" id="m-z" style="margin-top:18px">${zakatHTML()}</div><p class="lede">Zakat is due once your net wealth has stayed above the nisab for a lunar year. Confirm the current nisab and your own situation with a scholar you trust.</p>`)+FOOT;
+}
+
+/* eid */
+function viewEid(){
+  const o={weekday:"long",month:"long",day:"numeric"};
+  const e1=addDays(parseISO(S.start),29),e2=addDays(parseISO(S.start),30);
+  const items=["Pay Zakat al-Fitr before the Eid prayer","Find the Eid prayer time and place","Lay out Eid clothes","Eat dates or something sweet before leaving for the prayer","Send Eid greetings to family and friends","Plan visits and the Eid meal"];
+  const gifts=S.eid.gifts.map((r,i)=>`<div class="crow">${txt("eid.gifts."+i+".who","Who it is for","For")}${txt("eid.gifts."+i+".gift","Gift idea","Gift")}${dot("eid.gifts."+i+".done","Bought")}<button class="btn" data-act="delgift" data-i="${i}" aria-label="Remove gift">Remove</button></div>`).join("");
+  return head("Eid","Eid al-Fitr is expected on "+fd(e1,o)+" or "+fd(e2,o)+", depending on whether Ramadan has 29 or 30 days and on the moon sighting.")
+    +sec("Before Eid",null,`<div class="chips">${items.map((t,i)=>chk("eid.check.c"+i,t)).join("")}</div>`)
+    +sec("Gift list",null,`${gifts||`<p class="lede" style="margin:0">Add the people you want to give something to.</p>`}<div class="row"><button class="btn pri" data-act="addgift">Add a gift</button></div>`)
+    +sec("Eid day plan",null,area("eid.plan","Eid day plan","Prayer, breakfast, visits, calls, who is hosting",5))+FOOT;
+}
+
+/* backup */
+function viewBackup(){
+  return head("Backup","Everything you enter stays in this browser. Copy a backup now and then, and paste it here to restore it on another device.")
+    +sec("Backup and restore",null,`<div class="chips"><button class="btn pri" data-act="copy">Copy backup</button><button class="btn" data-act="restore">Restore from the box below</button></div><div style="margin-top:12px"><textarea id="bk" rows="6" aria-label="Backup text" placeholder="Paste a backup here to restore it"></textarea></div><p class="lede" id="bmsg" role="status"></p>`)
+    +sec("Sample data and reset",null,`<p class="lede" style="margin:0 0 12px">Fill the first 12 days with example entries to see how a used journal looks. This replaces what you have entered.</p><div class="chips"><button class="btn" data-act="sample">Fill with sample data</button><button class="btn" data-act="wipe">Erase everything</button></div>`)+FOOT;
+}
+function msg(t){const e=$("#bmsg");if(e)e.textContent=t}
+function copyBackup(){
+  const t=JSON.stringify(S),ta=$("#bk");if(ta)ta.value=t;
+  const sel=()=>{if(ta){ta.focus();ta.select()}};
+  let can=false;try{can=!!(navigator.clipboard&&navigator.clipboard.writeText)}catch(e){}
+  if(can){navigator.clipboard.writeText(t).then(()=>msg("Backup copied. Paste it somewhere safe, like a notes app."),()=>{sel();msg("Your browser blocked copying. The backup is in the box, so select it and copy it yourself.")})}
+  else{sel();msg("The backup is in the box. Select it and copy it yourself.")}
+}
+function restore(){
+  const ta=$("#bk");let d;
+  try{d=JSON.parse(ta.value)}catch(e){msg("That doesn't look like a backup. Paste the full text you copied earlier.");return}
+  if(!d||typeof d!=="object"||Array.isArray(d)||!d.days){msg("That doesn't look like a backup from this journal.");return}
+  S=merge(d);save();render(false);msg("Backup restored.");
+}
+function sample(){
+  let seed=11;const r=()=>{seed=(seed*9301+49297)%233280;return seed/233280};
+  const meals=[["Oats with dates and tea","Lentil soup, dates, grilled chicken, salad"],["Eggs, toast and yogurt","Dates, fruit chaat, chicken rice"],["Labneh wrap and a banana","Samosas, chickpea curry, rice"],["Overnight oats","Dates, vegetable soup, pasta bake"]];
+  const tasks=["Revise chapter 4","Reply to emails","Call a family member"];
+  const grat=["Good health","Time with family","A quiet hour with the Quran"];
+  S.days={};
+  for(let d=1;d<=12;d++){
+    const x={p:{},x:{},dh:{},top:{},gr:{}};
+    PRAYERS.forEach(p=>{x.p[p[0]]=r()>0.12});
+    HABITS.forEach(h=>{x.x[h[0]]=r()>0.42});
+    x.pages=String(Math.round(14+r()*9));
+    DHIKR.forEach(k=>{x.dh[k[0]]=Math.round(k[2]*(0.4+r()*0.7))});
+    const m=meals[d%meals.length];x.suhoor=m[0];x.iftar=m[1];
+    for(let i=0;i<3;i++){x.top[i]={t:tasks[i],d:r()>0.35};x.gr[i]=grat[i]}
+    S.days[d]=x;
+  }
+  S.juz={};for(let j=1;j<=12;j++)S.juz[j]=true;
+  S.goals.p1="Pray every prayer on time";S.goals.p2="Finish the Quran once";S.goals.p3="Give charity every Friday";
+  S.groc=[{t:"Dates",d:true},{t:"Rice",d:true},{t:"Chickpeas",d:false},{t:"Yogurt",d:false}];
+  S.chlog=[{date:iso(dateOf(5)),desc:"Local food bank",amt:"25"},{date:iso(dateOf(9)),desc:"Masjid fund",amt:"50"}];
+  save();
+}
+
+/* actions */
+function act(a,el){
+  if(a==="prev"){ui.day=Math.max(1,ui.day-1);render(true)}
+  else if(a==="next"){ui.day=Math.min(30,ui.day+1);render(true)}
+  else if(a==="today"){const i=todayIdx();ui.day=(i>=1&&i<=30)?i:1;render(true)}
+  else if(a==="pick"){ui.day=+el.dataset.day;go("today")}
+  else if(a==="dh"){
+    const k="days."+ui.day+".dh."+el.dataset.key,row=el.closest(".counter"),tg=+row.dataset.t;
+    const nv=Math.max(0,num(get(k))+Number(el.dataset.d));
+    set(k,nv);row.querySelector(".cn").textContent=nv;row.querySelector(".bar i").style.width=Math.min(100,nv/tg*100)+"%";
+  }
+  else if(a==="addg"){const i=$("#gnew"),t=i?i.value.trim():"";if(!t)return;S.groc.push({t:t,d:false});save();render(false)}
+  else if(a==="delg"){S.groc.splice(+el.dataset.i,1);save();render(false)}
+  else if(a==="addc"){S.chlog.push({date:"",desc:"",amt:""});save();render(false)}
+  else if(a==="delc"){S.chlog.splice(+el.dataset.i,1);save();render(false)}
+  else if(a==="addgift"){S.eid.gifts.push({who:"",gift:"",done:false});save();render(false)}
+  else if(a==="delgift"){S.eid.gifts.splice(+el.dataset.i,1);save();render(false)}
+  else if(a==="copy")copyBackup();
+  else if(a==="restore")restore();
+  else if(a==="sample"){sample();render(false);msg("Sample data added to days 1 to 12.")}
+  else if(a==="wipe"){
+    if(!ui.wipe){ui.wipe=true;el.textContent="Click again to erase everything";return}
+    ui.wipe=false;S=fresh();save();ui.day=1;render(true);msg("Everything has been erased.");
+  }
+}
+function refresh(){
+  const P="days."+ui.day,st=stats();
+  let e=$("#ringw");if(e)e.innerHTML=ringHTML();
+  e=$("#m-pr");if(e)e.textContent=PRAYERS.filter(p=>get(P+".p."+p[0])).length+" of 5";
+  e=$("#m-qp");if(e)e.textContent=fmtN(st.pages)+" of "+MUSHAF+" pages this month";
+  e=$("#m-juz");if(e)e.textContent=Object.keys(S.juz).filter(k=>S.juz[k]).length+" of 30";
+  e=$("#m-pg");if(e)e.textContent=fmtN(st.pages)+" of "+MUSHAF;
+  e=$("#m-pb");if(e)e.style.width=Math.min(100,st.pages/MUSHAF*100)+"%";
+  e=$("#m-ch");if(e)e.textContent=chTotal();
+  e=$("#m-z");if(e)e.innerHTML=zakatHTML();
+  updateMonth();
+}
+function onField(e){
+  const el=e.target;
+  if(!el||!el.dataset||!el.dataset.k)return;
+  if(el.dataset.re&&e.type!=="change")return;
+  const v=el.type==="checkbox"?el.checked:el.value;
+  if(el.dataset.k==="start"&&!v)return;
+  set(el.dataset.k,v);
+  if(el.dataset.re)render(false);else refresh();
+}
+
+/* rendering and routing */
+function render(top){
+  const y=window.scrollY;
+  const fn={today:viewToday,month:viewMonth,quran:viewQuran,goals:viewGoals,duas:viewDuas,nights:viewNights,lists:viewLists,eid:viewEid,backup:viewBackup}[ui.view]||viewToday;
+  $("#app").innerHTML=fn();
+  $("#nav").innerHTML=VIEWS.map(v=>`<a href="#${v[0]}" data-v="${v[0]}"${v[0]===ui.view?' aria-current="page"':""}>${esc(v[1])}</a>`).join("");
+  if(top){ui.wipe=false;window.scrollTo(0,0);try{const c=$("#nav [aria-current]");if(c)c.scrollIntoView({inline:"center",block:"nearest"})}catch(err){}}
+  else window.scrollTo(0,y);
+}
+function go(v){ui.view=v;try{if(location.hash!=="#"+v)location.hash=v}catch(e){}render(true)}
+function route(){
+  const h=(location.hash||"").slice(1);
+  const v=VIEWS.some(x=>x[0]===h)?h:ui.view;
+  if(v!==ui.view||!ui.ready){ui.view=v;ui.ready=true;render(true)}
+}
+const app=$("#app");
+app.addEventListener("input",onField);
+app.addEventListener("change",onField);
+app.addEventListener("click",e=>{const b=e.target.closest("[data-act]");if(b)act(b.dataset.act,b)});
+app.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="gnew"){e.preventDefault();act("addg",e.target)}});
+$("#nav").addEventListener("click",e=>{const a=e.target.closest("a[data-v]");if(a){e.preventDefault();go(a.dataset.v)}});
+window.addEventListener("hashchange",route);
+route();
+})();
+</script>
+
+</body>
+</html>
